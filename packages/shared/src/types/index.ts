@@ -197,32 +197,7 @@ export type SiblingActionType =
   | 'scale'
   | 'debug';
 
-/**
- * Sibling Node action definition
- */
-export interface SiblingAction {
-  type: SiblingActionType;
-  label: string;
-  icon?: string;
-  description?: string;
-  group?: string;           // For grouped actions
-  handler: string;          // Handler function name
-}
 
-/**
- * Context for determining available sibling actions
- * Extended with additional fields for context detection
- */
-export interface ActionContext {
-  nodeType: NodeType;
-  nodeStatus: NodeStatus;
-  hasChildren: boolean;
-  hasParent: boolean;
-  hasDependencies: boolean;
-  isBlocked: boolean;
-  isOverdue: boolean;
-  metadata: Record<string, any>;
-}
 
 /**
  * API Response types
