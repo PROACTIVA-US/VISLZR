@@ -1,0 +1,14 @@
+{
+  "name": "@vislzr/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vislzr FastAPI backend",
+  "scripts": {
+    "dev": "uvicorn app.main:app --reload --port 8000",
+    "test": "pytest",
+    "lint": "ruff check .",
+    "format": "ruff format ."
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

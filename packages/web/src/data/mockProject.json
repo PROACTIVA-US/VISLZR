@@ -1,0 +1,223 @@
+{
+  "project": {
+    "id": "vislzr-demo",
+    "name": "Vislzr Demo Project",
+    "createdAt": "2025-08-28T12:00:00Z",
+    "updatedAt": "2025-09-05T09:42:00Z",
+    "description": "Mock data for Vislzr mind map and timeline demos."
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "Vislzr",
+      "status": "focus",
+      "priority": 1,
+      "progress": 0.35,
+      "tags": [
+        "core"
+      ]
+    },
+    {
+      "id": "ai",
+      "label": "AI Prompting",
+      "status": "ok",
+      "priority": 2,
+      "progress": 0.2,
+      "tags": [
+        "genai"
+      ]
+    },
+    {
+      "id": "graph",
+      "label": "Graph Engine",
+      "status": "overdue",
+      "priority": 1,
+      "progress": 0.1,
+      "tags": [
+        "d3",
+        "layout"
+      ]
+    },
+    {
+      "id": "ui",
+      "label": "UI Shell",
+      "status": "ok",
+      "priority": 3,
+      "progress": 0.6,
+      "tags": [
+        "tailwind",
+        "ux"
+      ]
+    },
+    {
+      "id": "mini",
+      "label": "MiniMap",
+      "status": "ok",
+      "priority": 3,
+      "progress": 0.4,
+      "tags": [
+        "navigation"
+      ]
+    },
+    {
+      "id": "timeline",
+      "label": "Timeline",
+      "status": "ok",
+      "priority": 3,
+      "progress": 0.55,
+      "tags": [
+        "milestones"
+      ]
+    },
+    {
+      "id": "ctx",
+      "label": "Context Menu",
+      "status": "ok",
+      "priority": 4,
+      "progress": 0.75,
+      "tags": [
+        "interactions"
+      ]
+    },
+    {
+      "id": "modal",
+      "label": "Modals",
+      "status": "ok",
+      "priority": 4,
+      "progress": 0.7,
+      "tags": [
+        "forms"
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Data Loader",
+      "status": "ok",
+      "priority": 2,
+      "progress": 0.5,
+      "tags": [
+        "io"
+      ]
+    },
+    {
+      "id": "persist",
+      "label": "Layout Persist",
+      "status": "ok",
+      "priority": 2,
+      "progress": 0.25,
+      "tags": [
+        "storage"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "root",
+      "target": "ai",
+      "kind": "relates",
+      "weight": 0.7
+    },
+    {
+      "source": "root",
+      "target": "graph",
+      "kind": "depends",
+      "weight": 1.0
+    },
+    {
+      "source": "root",
+      "target": "ui",
+      "kind": "depends",
+      "weight": 0.8
+    },
+    {
+      "source": "ui",
+      "target": "mini",
+      "kind": "subtask",
+      "weight": 0.6
+    },
+    {
+      "source": "ui",
+      "target": "timeline",
+      "kind": "subtask",
+      "weight": 0.6
+    },
+    {
+      "source": "ui",
+      "target": "ctx",
+      "kind": "subtask",
+      "weight": 0.5
+    },
+    {
+      "source": "ui",
+      "target": "modal",
+      "kind": "subtask",
+      "weight": 0.5
+    },
+    {
+      "source": "data",
+      "target": "ai",
+      "kind": "relates",
+      "weight": 0.3
+    },
+    {
+      "source": "persist",
+      "target": "graph",
+      "kind": "relates",
+      "weight": 0.4
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "title": "First Render",
+      "date": "2025-09-01",
+      "status": "done"
+    },
+    {
+      "id": "m2",
+      "title": "Node Interactions",
+      "date": "2025-09-05",
+      "status": "done"
+    },
+    {
+      "id": "m3",
+      "title": "MiniMap + Timeline",
+      "date": "2025-09-09",
+      "status": "pending"
+    },
+    {
+      "id": "m4",
+      "title": "GenAI Prompt-to-Graph",
+      "date": "2025-09-15",
+      "status": "planned"
+    }
+  ],
+  "history": [
+    {
+      "ts": "2025-08-28T12:04:00Z",
+      "event": "project_created"
+    },
+    {
+      "ts": "2025-08-30T16:10:00Z",
+      "event": "node_added",
+      "node": "graph"
+    },
+    {
+      "ts": "2025-08-31T10:12:00Z",
+      "event": "node_added",
+      "node": "ui"
+    },
+    {
+      "ts": "2025-09-02T09:01:00Z",
+      "event": "edge_added",
+      "source": "root",
+      "target": "graph"
+    },
+    {
+      "ts": "2025-09-03T18:25:00Z",
+      "event": "progress_update",
+      "node": "ui",
+      "progress": 0.5
+    }
+  ]
+}
