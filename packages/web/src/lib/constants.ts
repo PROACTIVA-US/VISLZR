@@ -1,7 +1,7 @@
 // Sibling Node Constants
 // Phase 1.1 - Foundation (Visual Constants & Timing)
 
-import type { ActionCategory } from '@vislzr/shared';
+import type { ActionCategory } from '@vislzr/shared/types/actions';
 
 /**
  * Animation timing constants (in milliseconds)
@@ -13,6 +13,8 @@ export const ANIMATION_TIMING = {
   FADE_DURATION: 200,
   /** Duration for hover scale animation */
   HOVER_DURATION: 150,
+  /** Duration for click animation */
+  CLICK_DURATION: 100,
   /** Duration for group expand/collapse animation */
   GROUP_EXPAND_DURATION: 250,
   /** Easing function for appear animation */
@@ -24,11 +26,11 @@ export const ANIMATION_TIMING = {
 /**
  * Visual constants for sibling nodes
  */
-export const SIBLING_VISUAL = {
+export const VISUAL = {
   /** Radius of sibling node circles (smaller than primary nodes) */
-  RADIUS: 12,
+  SIBLING_RADIUS: 12,
   /** Distance from selected node to siblings */
-  OFFSET: 80,
+  SIBLING_OFFSET: 80,
   /** Vertical spacing for stack layout */
   STACK_SPACING: 35,
   /** Horizontal offset for stack layout */
@@ -51,6 +53,10 @@ export const SIBLING_VISUAL = {
   HOVER_SCALE: 1.15,
   /** Opacity on hover */
   HOVER_OPACITY: 1.0,
+  /** Minimum distance for collision detection */
+  MIN_COLLISION_DISTANCE: 30,
+  /** Animation stagger time (ms) between siblings */
+  ANIMATION_STAGGER: 50,
 } as const;
 
 /**
@@ -83,12 +89,12 @@ export const LAYOUT_THRESHOLDS = {
  * Arc layout configuration
  */
 export const ARC_LAYOUT = {
-  /** Arc angle in radians (180 degrees) */
-  ARC_ANGLE: Math.PI,
-  /** Starting angle (top of arc) */
-  START_ANGLE: -Math.PI / 2,
+  /** Arc angle in degrees (180 degrees) */
+  startAngle: -90,
+  /** End angle in degrees */
+  endAngle: 90,
   /** Default radius for arc */
-  RADIUS: 80,
+  radius: 80,
 } as const;
 
 /**
@@ -96,9 +102,7 @@ export const ARC_LAYOUT = {
  */
 export const RING_LAYOUT = {
   /** Radius for ring layout */
-  RADIUS: 80,
-  /** Full circle in radians */
-  FULL_CIRCLE: 2 * Math.PI,
+  radius: 80,
 } as const;
 
 /**

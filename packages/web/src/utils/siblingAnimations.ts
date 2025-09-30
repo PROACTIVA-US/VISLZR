@@ -1,57 +1,103 @@
 /**
  * Animation utilities for sibling nodes.
- * Uses D3.js for smooth transitions.
+ * Phase 1.3-1.4 Implementation - Spec-compliant animations
+ * Uses D3.js for smooth 60fps transitions.
  */
 import * as d3 from 'd3';
-import type { SiblingNodeData, SiblingAnimationConfig } from '@/types/action';
+import type { SiblingNodeInstance } from '@vislzr/shared/types/actions';
+import { ANIMATION_TIMING } from '../lib/constants';
 
 /**
- * Default animation configuration.
+ * Animation configuration interface
+ */
+export interface SiblingAnimationConfig {
+  duration?: number;
+  delay?: number;
+  stagger?: number;
+  easing?: 'cubic-out' | 'cubic-in' | 'linear';
+}
+
+/**
+ * Default animation configuration (per spec Section 5.3)
  */
 export const DEFAULT_ANIMATION_CONFIG: SiblingAnimationConfig = {
-  duration: 300,
+  duration: ANIMATION_TIMING.APPEAR_DURATION,
   delay: 0,
   stagger: 50,
   easing: 'cubic-out',
 };
 
 /**
- * Animate a sibling node in (fade in).
+ * Appear animation - fade in + scale (300ms)
+ * Spec Section 5.4 - Smooth entrance from parent node position
+ *
+ * @param element - SVG element or D3 selection
+ * @param config - Animation configuration
  */
-export const animateSiblingIn = (
+export const appearAnimation = (
   element: SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>,
   config: Partial<SiblingAnimationConfig> = {}
 ): void => {
-  const { duration, delay } = { ...DEFAULT_ANIMATION_CONFIG, ...config };
+  const { duration = ANIMATION_TIMING.APPEAR_DURATION, delay = 0 } = config;
 
   const selection = element instanceof SVGElement ? d3.select(element) : element;
 
+  // Get final position from transform attribute
+  const finalTransform = selection.attr('transform');
+
+  // Parse position from transform
+  const match = finalTransform?.match(/translate\(([^,]+),\s*([^)]+)\)/);
+  const finalX = match ? parseFloat(match[1]) : 0;
+  const finalY = match ? parseFloat(match[2]) : 0;
+
+  // Start slightly inward (90% of final position)
+  const startX = finalX * 0.9;
+  const startY = finalY * 0.9;
+
   selection
-    .attr('opacity', 0)
+    .style('opacity', 0)
+    .attr('transform', `translate(${startX}, ${startY}) scale(0.8)`)
     .transition()
     .delay(delay)
     .duration(duration)
-    .attr('opacity', 1)
-    .ease(d3.easeCubicOut);
+    .ease(d3.easeCubicOut)
+    .style('opacity', 1)
+    .attr('transform', `translate(${finalX}, ${finalY}) scale(1)`);
 };
 
 /**
- * Animate a sibling node out (fade out).
+ * Fade animation - fade out (200ms)
+ * Spec Section 5.4 - Smooth exit with slight inward movement
+ *
+ * @param element - SVG element or D3 selection
+ * @param config - Animation configuration
+ * @returns Promise that resolves when animation completes
  */
-export const animateSiblingOut = (
+export const fadeAnimation = (
   element: SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>,
   config: Partial<SiblingAnimationConfig> = {}
 ): Promise<void> => {
-  const { duration } = { ...DEFAULT_ANIMATION_CONFIG, ...config };
+  const { duration = ANIMATION_TIMING.FADE_DURATION } = config;
 
   const selection = element instanceof SVGElement ? d3.select(element) : element;
+
+  // Get current position
+  const currentTransform = selection.attr('transform');
+  const match = currentTransform?.match(/translate\(([^,]+),\s*([^)]+)\)/);
+  const currentX = match ? parseFloat(match[1]) : 0;
+  const currentY = match ? parseFloat(match[2]) : 0;
+
+  // Move slightly inward (95% of current position)
+  const endX = currentX * 0.95;
+  const endY = currentY * 0.95;
 
   return new Promise((resolve) => {
     selection
       .transition()
       .duration(duration)
-      .attr('opacity', 0)
       .ease(d3.easeCubicIn)
+      .style('opacity', 0)
+      .attr('transform', `translate(${endX}, ${endY}) scale(0.9)`)
       .on('end', () => resolve());
   });
 };
@@ -69,33 +115,42 @@ export const calculateStaggerDelays = (
 
 /**
  * Animate siblings in with stagger effect.
+ * Uses appearAnimation for smooth entrance.
+ *
+ * @param elements - Array of SVG elements or D3 selections
+ * @param config - Animation configuration
  */
 export const animateSiblingsInStaggered = (
   elements: (SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>)[],
   config: Partial<SiblingAnimationConfig> = {}
 ): void => {
-  const { stagger } = { ...DEFAULT_ANIMATION_CONFIG, ...config };
+  const { stagger = 50 } = config;
   const delays = calculateStaggerDelays(elements.length, config.delay || 0, stagger);
 
   elements.forEach((element, index) => {
-    animateSiblingIn(element, { ...config, delay: delays[index] });
+    appearAnimation(element, { ...config, delay: delays[index] });
   });
 };
 
 /**
  * Animate siblings out with stagger effect.
+ * Uses fadeAnimation for smooth exit.
+ *
+ * @param elements - Array of SVG elements or D3 selections
+ * @param config - Animation configuration
+ * @returns Promise that resolves when all animations complete
  */
 export const animateSiblingsOutStaggered = async (
   elements: (SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>)[],
   config: Partial<SiblingAnimationConfig> = {}
 ): Promise<void> => {
-  const { stagger, duration } = { ...DEFAULT_ANIMATION_CONFIG, ...config };
-  const delays = calculateStaggerDelays(elements.length, 0, stagger / 2);
+  const { stagger = 25 } = config; // Faster stagger for exit
+  const delays = calculateStaggerDelays(elements.length, 0, stagger);
 
   const promises = elements.map((element, index) => {
     return new Promise<void>((resolve) => {
       setTimeout(() => {
-        animateSiblingOut(element, { ...config, duration }).then(resolve);
+        fadeAnimation(element, config).then(resolve);
       }, delays[index]);
     });
   });
@@ -196,7 +251,7 @@ export const calculateStackPosition = (
  */
 export const calculateSiblingPositions = (
   parentNode: { x: number; y: number; radius?: number },
-  siblings: SiblingNodeData[],
+  siblings: SiblingNodeInstance[],
   layout: 'arc' | 'stack' = 'arc',
   options: {
     arcRadius?: number;
@@ -257,25 +312,32 @@ export const pulseSibling = (
 };
 
 /**
- * Highlight sibling on hover.
+ * Hover animation - scale up slightly
+ * Spec Section 5.4 - 150ms hover effect
+ *
+ * @param element - SVG element or D3 selection
+ * @param highlight - True to highlight, false to unhighlight
  */
-export const highlightSibling = (
+export const hoverAnimation = (
   element: SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>,
   highlight: boolean
 ): void => {
   const selection = element instanceof SVGElement ? d3.select(element) : element;
 
-  if (highlight) {
-    selection
-      .transition()
-      .duration(150)
-      .attr('transform', 'scale(1.1)')
-      .style('filter', 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))');
-  } else {
-    selection
-      .transition()
-      .duration(150)
-      .attr('transform', 'scale(1)')
-      .style('filter', 'none');
-  }
+  // Get current transform (preserve translate)
+  const currentTransform = selection.attr('transform');
+  const match = currentTransform?.match(/translate\(([^)]+)\)/);
+  const translatePart = match ? match[0] : 'translate(0, 0)';
+
+  const scale = highlight ? 1.15 : 1.0;
+  const filter = highlight ? 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))' : 'none';
+
+  selection
+    .transition()
+    .duration(ANIMATION_TIMING.HOVER_DURATION)
+    .attr('transform', `${translatePart} scale(${scale})`)
+    .style('filter', filter);
 };
+
+// Legacy alias for backward compatibility
+export const highlightSibling = hoverAnimation;
