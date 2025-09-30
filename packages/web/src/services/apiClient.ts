@@ -1,7 +1,6 @@
-const BASE = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
+import type { NodeData, EdgeData } from "@vislzr/shared";
 
-export type NodeData = { id: string; label: string; status?: string; priority?: number; progress?: number; tags?: string[] };
-export type EdgeData = { source: string; target: string; kind?: "depends"|"relates"|"subtask"; weight?: number };
+const BASE = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
 export async function getGraph(projectId: string) {
   const r = await fetch(`${BASE}/projects/${projectId}/graph`, { cache: "no-store" });

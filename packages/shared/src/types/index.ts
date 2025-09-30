@@ -78,18 +78,19 @@ export interface NodeMetadata {
 
 /**
  * Core Node data structure
+ * Fields are mostly optional for backward compatibility with existing code
  */
 export interface NodeData {
   id: NodeID;
   label: string;
-  type: NodeType;
-  status: NodeStatus;
-  priority: NodePriority;
-  progress: number;          // 0-100
-  tags: string[];
-  parent_id: NodeID | null;
-  dependencies: NodeID[];    // Node IDs this depends on
-  metadata: NodeMetadata;
+  type?: NodeType;           // Defaults to 'TASK' if not provided
+  status?: NodeStatus;        // Defaults to 'IDLE' if not provided
+  priority?: NodePriority;   // Defaults to 2 if not provided
+  progress?: number;          // 0-100, defaults to 0
+  tags?: string[];
+  parent_id?: NodeID | null;
+  dependencies?: NodeID[];    // Node IDs this depends on
+  metadata?: Partial<NodeMetadata>;
   // D3.js simulation properties (optional)
   x?: number;
   y?: number;
@@ -101,11 +102,13 @@ export interface NodeData {
  * Edge data structure
  */
 export interface EdgeData {
-  id: EdgeID;
+  id?: EdgeID;               // Optional for backward compatibility
   source: NodeID | any;      // NodeID or D3 node object
   target: NodeID | any;      // NodeID or D3 node object
-  type: EdgeType;
-  status: EdgeStatus;
+  type?: EdgeType;           // Defaults to 'dependency' if not provided
+  status?: EdgeStatus;       // Defaults to 'active' if not provided
+  kind?: "depends" | "relates" | "subtask"; // Legacy field for backward compatibility
+  weight?: number;
   metadata?: {
     label?: string;
     weight?: number;

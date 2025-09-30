@@ -1,32 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { getGraph, ws, addNode, addEdge, patchNode, deleteNode, deleteEdge, putGraph } from "../services/apiClient";
-
-type NodeData = {
-  id: string;
-  label: string;
-  status?: string;
-  priority?: number;
-  progress?: number;
-  tags?: string[];
-  x?: number;
-  y?: number;
-  fx?: number;
-  fy?: number;
-};
-
-type EdgeData = {
-  source: any;
-  target: any;
-  kind?: string;
-  weight?: number;
-};
-
-type GraphData = {
-  project: { id: string; name: string };
-  nodes: NodeData[];
-  edges: EdgeData[];
-};
+import { SiblingNodes } from "./Canvas/SiblingNodes";
+import { actionRegistry } from "../lib/ActionRegistry";
+import { ContextDetector } from "../lib/ContextDetector";
+import { initializeDefaultActions } from "../lib/initializeActions";
+import type { NodeData, EdgeData, GraphData, SiblingAction } from "@vislzr/shared";
 
 interface GraphViewProps {
   projectId: string;
@@ -42,7 +21,13 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
   const [error, setError] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node?: NodeData } | null>(null);
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
+  const [siblingActions, setSiblingActions] = useState<SiblingAction[]>([]);
   const simulationRef = useRef<d3.Simulation<NodeData, EdgeData> | null>(null);
+
+  // Initialize default actions on mount
+  useEffect(() => {
+    initializeDefaultActions();
+  }, []);
 
   const loadGraph = useCallback(async () => {
     try {
@@ -176,6 +161,13 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
       event.stopPropagation();
       setSelectedNode(d);
       onNodeSelect?.(d);
+
+      // Build context and get filtered actions for this node
+      if (graph) {
+        const context = ContextDetector.buildContext(d, graph);
+        const actions = actionRegistry.getActionsForContext(context);
+        setSiblingActions(actions);
+      }
     });
 
     node.on("contextmenu", (event: MouseEvent, d: NodeData) => {
@@ -187,6 +179,7 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
       setSelectedNode(null);
       onNodeSelect?.(null);
       setContextMenu(null);
+      setSiblingActions([]); // Clear sibling actions when clicking canvas
     });
 
     svg.on("contextmenu", (event: MouseEvent) => {
@@ -264,6 +257,46 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
     }
   };
 
+  const handleSiblingActionClick = useCallback((action: SiblingAction) => {
+    if (!selectedNode) return;
+
+    console.log(`Sibling action clicked: ${action.type} on node ${selectedNode.id}`);
+
+    // Route to appropriate handler based on action type
+    switch (action.type) {
+      case 'add_child':
+        handleAddChildNode(selectedNode.id);
+        break;
+
+      case 'mark_complete':
+        patchNode(projectId, selectedNode.id, { status: 'COMPLETED' }).catch(console.error);
+        break;
+
+      case 'start_task':
+        patchNode(projectId, selectedNode.id, { status: 'IN_PROGRESS' }).catch(console.error);
+        break;
+
+      case 'pause_resume':
+        const newStatus = selectedNode.status === 'IN_PROGRESS' ? 'IDLE' : 'IN_PROGRESS';
+        patchNode(projectId, selectedNode.id, { status: newStatus }).catch(console.error);
+        break;
+
+      case 'view_dependencies':
+      case 'view_details':
+      case 'view_timeline':
+        // These will be handled in Phase 2.2
+        console.log(`${action.type} - Not yet implemented`);
+        break;
+
+      default:
+        console.log(`Action ${action.type} handler not implemented yet`);
+    }
+
+    // Clear selection and siblings after action
+    setSiblingActions([]);
+    setSelectedNode(null);
+  }, [selectedNode, projectId]);
+
   if (loading) return <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>;
   if (error) return <div className="flex items-center justify-center h-full text-red-400">Error: {error}</div>;
   if (!graph) return <div className="flex items-center justify-center h-full text-gray-400">No graph data</div>;
@@ -271,7 +304,22 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
   return (
     <div className="relative w-full h-full">
       <svg ref={svgRef} className="w-full h-full" />
-      
+
+      {/* Sibling Nodes Component */}
+      {selectedNode && graph && (
+        <SiblingNodes
+          selectedNode={selectedNode}
+          actions={siblingActions}
+          graphNodes={graph.nodes.map(n => ({
+            x: n.x || 0,
+            y: n.y || 0,
+            radius: 20,
+          }))}
+          svgRef={svgRef}
+          onActionClick={handleSiblingActionClick}
+        />
+      )}
+
       {contextMenu && (
         <div
           className="absolute bg-gray-800 border border-gray-700 rounded shadow-lg py-2 z-50"

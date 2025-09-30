@@ -28,6 +28,9 @@ importers:
 
   packages/web:
     dependencies:
+      '@vislzr/shared':
+        specifier: workspace:*
+        version: link:../shared
       axios:
         specifier: ^1.7.0
         version: 1.12.2

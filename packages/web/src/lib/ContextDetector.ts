@@ -20,13 +20,14 @@ export class ContextDetector {
    */
   static buildContext(node: NodeData, graph: GraphData): NodeContext {
     return {
-      nodeType: node.type,
-      status: node.status,
+      nodeType: node.type || 'TASK',
+      nodeStatus: node.status || 'IDLE',
       hasChildren: this.hasChildren(node.id, graph),
       hasParent: this.hasParent(node.id, graph),
       hasDependencies: this.hasDependencies(node.id, graph),
       isBlocked: this.isBlocked(node, graph),
       isOverdue: this.isOverdue(node),
+      hasCode: Boolean(node.metadata?.code),
       metadata: node.metadata || {},
     };
   }
