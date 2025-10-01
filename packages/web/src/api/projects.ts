@@ -1,6 +1,14 @@
 import { apiClient } from './client';
 import type { Project, ProjectCreate, ProjectUpdate } from '@/types/project';
-import type { GraphData, NodeData, EdgeData, Milestone } from '@/types/graph';
+import type { GraphData, NodeData, EdgeData } from '@vislzr/shared';
+
+// Milestone is a local type for now
+export interface Milestone {
+  id: string;
+  title: string;
+  date: string;
+  status: "planned"|"pending"|"done";
+}
 
 export const projectsApi = {
   // Projects

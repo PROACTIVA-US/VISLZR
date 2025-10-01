@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { SiblingNodes } from '../SiblingNodes';
 import type { NodeData } from '@vislzr/shared';
-import type { SiblingAction } from '@vislzr/shared/types/actions';
+import type { SiblingAction } from '@vislzr/shared';
 import React from 'react';
 
 describe('SiblingNodes Component', () => {
@@ -26,12 +26,12 @@ describe('SiblingNodes Component', () => {
     const actions: SiblingAction[] = [
       {
         id: 'view_details',
-        type: 'view_details',
         label: 'View Details',
         icon: '👁️',
         category: 'view',
-        handler: 'handleViewDetails',
-        conditions: {},
+        priority: 1,
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
       },
     ];
 
@@ -73,12 +73,12 @@ describe('SiblingNodes Component', () => {
     const actions: SiblingAction[] = [
       {
         id: 'view_details',
-        type: 'view_details',
         label: 'View Details',
         icon: '👁️',
         category: 'view',
-        handler: 'handleViewDetails',
-        conditions: {},
+        priority: 1,
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
       },
     ];
 
@@ -186,12 +186,12 @@ describe('SiblingNodes Component', () => {
     const actions: SiblingAction[] = [
       {
         id: 'view_details',
-        type: 'view_details',
         label: 'View Details',
         icon: '👁️',
         category: 'view',
-        handler: 'handleViewDetails',
-        conditions: {},
+        priority: 1,
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
       },
     ];
 
@@ -247,12 +247,12 @@ describe('SiblingNodes Component', () => {
     const actions: SiblingAction[] = [
       {
         id: 'view_details',
-        type: 'view_details',
         label: 'View Details',
         icon: '👁️',
         category: 'view',
-        handler: 'handleViewDetails',
-        conditions: {},
+        priority: 1,
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
       },
     ];
 

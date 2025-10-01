@@ -2,8 +2,8 @@
  * API client for sibling node actions.
  */
 import { apiClient } from './client';
+import type { SiblingAction } from '@vislzr/shared';
 import type {
-  SiblingAction,
   ActionExecutionRequest,
   ActionExecutionResult,
   ActionHistoryEntry,

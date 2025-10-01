@@ -2,7 +2,7 @@
  * Hook for managing dependency focus mode.
  */
 import { useState, useEffect, useCallback } from 'react';
-import type { NodeData, EdgeData } from '@/types/graph';
+import type { NodeData, EdgeData } from '@vislzr/shared';
 import type { DependencyGraph } from '@/utils/dependencyAnalysis';
 import { analyzeDependencies } from '@/utils/dependencyAnalysis';
 

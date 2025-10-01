@@ -2,9 +2,9 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { calculateSiblingPositions } from '../utils/siblingPositioning';
 import { actionRegistry } from '../lib/ActionRegistry';
 import { ContextDetector } from '../lib/ContextDetector';
-import type { NodeData, EdgeData } from '@vislzr/shared';
+import type { NodeData } from '@vislzr/shared';
 import { defaultActions } from '../lib/defaultActions';
-import type { SiblingAction } from '@vislzr/shared/types/actions';
+import type { SiblingAction } from '@vislzr/shared';
 
 describe('Performance Tests', () => {
   beforeAll(() => {
@@ -105,12 +105,6 @@ describe('Performance Tests', () => {
 
   it('should handle position calculation with collision resolution efficiently', () => {
     // Create a crowded scenario with many potential collisions
-    const graphNodes = Array.from({ length: 50 }, (_, i) => ({
-      x: 100 + (i % 10) * 20,
-      y: 100 + Math.floor(i / 10) * 20,
-      radius: 15,
-    }));
-
     const start = performance.now();
 
     for (let i = 0; i < 50; i++) {

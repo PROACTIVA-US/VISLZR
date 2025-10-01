@@ -2,7 +2,7 @@
  * Dependency analysis utilities.
  * Analyzes node dependencies for visualization.
  */
-import type { NodeData, EdgeData } from '@/types/graph';
+import type { NodeData, EdgeData } from '@vislzr/shared';
 
 export interface DependencyPath {
   nodes: string[];
@@ -58,7 +58,7 @@ export const findUpstreamDependencies = (
 
   // Find edges where this node is the target
   const incomingEdges = edges.filter(
-    (edge) => edge.target === nodeId && edge.type === 'dependency'
+    (edge) => edge.target === nodeId && edge.kind === 'depends'
   );
 
   for (const edge of incomingEdges) {
@@ -100,7 +100,7 @@ export const findDownstreamDependents = (
   const outgoingEdges = edges.filter(
     (edge) => {
       const sourceId = typeof edge.source === 'string' ? edge.source : edge.source.id;
-      return sourceId === nodeId && edge.type === 'dependency';
+      return sourceId === nodeId && edge.kind === 'depends';
     }
   );
 
@@ -186,12 +186,11 @@ const findPathsToRoots = (
 
   // Find dependencies
   const incomingEdges = edges.filter(
-    (edge) => edge.target === nodeId && edge.type === 'dependency'
+    (edge) => edge.target === nodeId && edge.kind === 'depends'
   );
 
   if (incomingEdges.length === 0) {
     // Reached a root, save path
-    const node = nodes.find((n) => n.id === nodeId);
     const isBlocking = currentPath.some((id) => {
       const n = nodes.find((n) => n.id === id);
       return n && n.status !== 'COMPLETED';
@@ -244,7 +243,7 @@ const findPathsToLeaves = (
   // Find dependents
   const outgoingEdges = edges.filter((edge) => {
     const sourceId = typeof edge.source === 'string' ? edge.source : edge.source.id;
-    return sourceId === nodeId && edge.type === 'dependency';
+    return sourceId === nodeId && edge.kind === 'depends';
   });
 
   if (outgoingEdges.length === 0) {
@@ -294,7 +293,7 @@ export const hasCircularDependencies = (
 
     const outgoingEdges = edges.filter((edge) => {
       const sourceId = typeof edge.source === 'string' ? edge.source : edge.source.id;
-      return sourceId === currentId && edge.type === 'dependency';
+      return sourceId === currentId && edge.kind === 'depends';
     });
 
     for (const edge of outgoingEdges) {

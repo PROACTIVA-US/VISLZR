@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { GraphData } from "@/types/graph";
+import type { GraphData } from "@vislzr/shared";
 
 /**
  * Robust loader:

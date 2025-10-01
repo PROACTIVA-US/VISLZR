@@ -8,7 +8,7 @@ import type {
   GraphContext,
   ActionResult,
   NodeContext,
-} from '@vislzr/shared/types/actions';
+} from '@vislzr/shared';
 
 /**
  * ActionRegistry manages all available sibling actions

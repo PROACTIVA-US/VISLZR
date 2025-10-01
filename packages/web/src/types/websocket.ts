@@ -1,4 +1,4 @@
-import type { NodeData, EdgeData } from './graph';
+import type { NodeData, EdgeData } from '@vislzr/shared';
 
 export type WebSocketMessage =
   | { type: 'node_updated'; data: NodeData }

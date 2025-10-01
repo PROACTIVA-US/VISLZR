@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import type { SiblingAction, SiblingNodeInstance } from '@vislzr/shared/types/actions';
+import type { SiblingAction, SiblingNodeInstance } from '@vislzr/shared';
 import { calculateSiblingPositions, resolveCollisions } from '../utils/siblingPositioning';
 import { appearAnimation, fadeAnimation, hoverAnimation } from '../utils/siblingAnimations';
 import { VISUAL, SIBLING_COLORS, Z_INDEX, ANIMATION_TIMING } from './constants';

@@ -1,7 +1,7 @@
 // Sibling Node Constants
 // Phase 1.1 - Foundation (Visual Constants & Timing)
 
-import type { ActionCategory } from '@vislzr/shared/types/actions';
+import type { ActionCategory } from '@vislzr/shared';
 
 /**
  * Animation timing constants (in milliseconds)

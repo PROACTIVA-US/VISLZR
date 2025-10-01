@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
-import { getGraph, ws, addNode, addEdge, patchNode, deleteNode, deleteEdge, putGraph } from "../services/apiClient";
+import { getGraph, ws, addNode, addEdge, patchNode, deleteNode, putGraph } from "../services/apiClient";
 import { SiblingNodes } from "./Canvas/SiblingNodes";
+import { NodeDetailsPanel, DependencyPanel, TimelineOverlay } from "./Panels";
 import { actionRegistry } from "../lib/ActionRegistry";
 import { ContextDetector } from "../lib/ContextDetector";
-import { initializeDefaultActions } from "../lib/initializeActions";
+import { initializeActions } from "../lib/initializeActions";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import type { NodeData, EdgeData, GraphData, SiblingAction } from "@vislzr/shared";
 
 interface GraphViewProps {
@@ -24,9 +26,14 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
   const [siblingActions, setSiblingActions] = useState<SiblingAction[]>([]);
   const simulationRef = useRef<d3.Simulation<NodeData, EdgeData> | null>(null);
 
+  // Phase 2.2: Panel and overlay state
+  const [dependencyPanelOpen, setDependencyPanelOpen] = useState(false);
+  const [detailsPanelNode, setDetailsPanelNode] = useState<NodeData | null>(null);
+  const [timelineOverlayOpen, setTimelineOverlayOpen] = useState(false);
+
   // Initialize default actions on mount
   useEffect(() => {
-    initializeDefaultActions();
+    initializeActions();
   }, []);
 
   const loadGraph = useCallback(async () => {
@@ -127,9 +134,9 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
         return 20;
       })
       .attr("fill", (d: NodeData) => {
-        if (d.status === "focus") return "#ef4444";
-        if (d.status === "overdue") return "#f59e0b";
-        if (d.status === "blocked") return "#6b7280";
+        if (d.status === "IN_PROGRESS") return "#ef4444";
+        if (d.status === "OVERDUE") return "#f59e0b";
+        if (d.status === "BLOCKED") return "#6b7280";
         return "#3b82f6";
       })
       .attr("stroke", "#fff")
@@ -165,7 +172,7 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
       // Build context and get filtered actions for this node
       if (graph) {
         const context = ContextDetector.buildContext(d, graph);
-        const actions = actionRegistry.getActionsForContext(context);
+        const actions = actionRegistry.getActionsForContext(d, context);
         setSiblingActions(actions);
       }
     });
@@ -184,7 +191,7 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
 
     svg.on("contextmenu", (event: MouseEvent) => {
       event.preventDefault();
-      const point = d3.pointer(event, g.node());
+      // const point = d3.pointer(event, g.node()); // Reserved for future use
       setContextMenu({ x: event.pageX, y: event.pageY });
     });
 
@@ -226,7 +233,7 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
     if (!label) return;
 
     try {
-      await addNode(projectId, { id, label, status: "ok", priority: 3 });
+      await addNode(projectId, { id, label, status: "IDLE", priority: 3 });
       setContextMenu(null);
     } catch (e) {
       console.error(e);
@@ -239,7 +246,7 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
     if (!label) return;
 
     try {
-      await addNode(projectId, { id, label, status: "ok", priority: 3 });
+      await addNode(projectId, { id, label, status: "IDLE", priority: 3 });
       await addEdge(projectId, { source: parentId, target: id, kind: "subtask" });
       setContextMenu(null);
     } catch (e) {
@@ -257,45 +264,126 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
     }
   };
 
+  // Phase 2.2: View action handlers
+  const handleViewDependencies = useCallback(() => {
+    if (!selectedNode) return;
+    setDependencyPanelOpen(true);
+    // Don't clear selection - keep node selected while panel open
+  }, [selectedNode]);
+
+  const handleViewDetails = useCallback(() => {
+    if (!selectedNode) return;
+    setDetailsPanelNode(selectedNode);
+    // Don't clear selection - keep node selected while panel open
+  }, [selectedNode]);
+
+  const handleViewTimeline = useCallback(() => {
+    setTimelineOverlayOpen(true);
+    // Timeline doesn't require node selection
+  }, []);
+
+  const handleCloseDependencyPanel = useCallback(() => {
+    setDependencyPanelOpen(false);
+  }, []);
+
+  const handleCloseDetailsPanel = useCallback(() => {
+    setDetailsPanelNode(null);
+  }, []);
+
+  const handleCloseTimelineOverlay = useCallback(() => {
+    setTimelineOverlayOpen(false);
+  }, []);
+
+  // Close all panels and overlays
+  const handleCloseAll = useCallback(() => {
+    setDependencyPanelOpen(false);
+    setDetailsPanelNode(null);
+    setTimelineOverlayOpen(false);
+    setSiblingActions([]);
+    setSelectedNode(null);
+  }, []);
+
   const handleSiblingActionClick = useCallback((action: SiblingAction) => {
     if (!selectedNode) return;
 
-    console.log(`Sibling action clicked: ${action.type} on node ${selectedNode.id}`);
+    console.log(`Sibling action clicked: ${action.id} on node ${selectedNode.id}`);
 
-    // Route to appropriate handler based on action type
-    switch (action.type) {
-      case 'add_child':
+    // Route to appropriate handler based on action ID
+    switch (action.id) {
+      case 'add-child':
         handleAddChildNode(selectedNode.id);
         break;
 
-      case 'mark_complete':
+      case 'mark-complete':
         patchNode(projectId, selectedNode.id, { status: 'COMPLETED' }).catch(console.error);
         break;
 
-      case 'start_task':
+      case 'start-task':
         patchNode(projectId, selectedNode.id, { status: 'IN_PROGRESS' }).catch(console.error);
         break;
 
-      case 'pause_resume':
+      case 'pause-resume':
         const newStatus = selectedNode.status === 'IN_PROGRESS' ? 'IDLE' : 'IN_PROGRESS';
         patchNode(projectId, selectedNode.id, { status: newStatus }).catch(console.error);
         break;
 
-      case 'view_dependencies':
-      case 'view_details':
-      case 'view_timeline':
-        // These will be handled in Phase 2.2
-        console.log(`${action.type} - Not yet implemented`);
-        break;
+      case 'view-dependencies':
+        handleViewDependencies();
+        return; // Don't clear selection for view actions
+
+      case 'view-details':
+        handleViewDetails();
+        return; // Don't clear selection for view actions
+
+      case 'view-timeline':
+        handleViewTimeline();
+        return; // Don't clear selection for view actions
 
       default:
-        console.log(`Action ${action.type} handler not implemented yet`);
+        console.log(`Action ${action.id} handler not implemented yet`);
     }
 
-    // Clear selection and siblings after action
+    // Clear selection and siblings after action (for non-view actions)
     setSiblingActions([]);
     setSelectedNode(null);
-  }, [selectedNode, projectId]);
+  }, [selectedNode, projectId, handleViewDependencies, handleViewDetails, handleViewTimeline]);
+
+  // Phase 2.2: Keyboard shortcuts (defined after all handlers)
+  useKeyboardShortcuts({
+    shortcuts: [
+      {
+        key: 'Escape',
+        handler: handleCloseAll,
+        description: 'Close all panels and overlays',
+      },
+      {
+        key: 'd',
+        handler: handleViewDependencies,
+        description: 'View dependencies (when node selected)',
+      },
+      {
+        key: 'i',
+        handler: handleViewDetails,
+        description: 'View node details (when node selected)',
+      },
+      {
+        key: 't',
+        handler: handleViewTimeline,
+        description: 'View timeline',
+      },
+      {
+        key: ' ',
+        handler: () => {
+          if (selectedNode) {
+            patchNode(projectId, selectedNode.id, { status: 'COMPLETED' }).catch(console.error);
+          }
+        },
+        description: 'Mark selected node as complete',
+      },
+    ],
+    enabled: true,
+    excludeInputs: true,
+  });
 
   if (loading) return <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>;
   if (error) return <div className="flex items-center justify-center h-full text-red-400">Error: {error}</div>;
@@ -311,12 +399,46 @@ export function GraphView({ projectId, onNodeSelect, onGraphLoad, importedGraph 
           selectedNode={selectedNode}
           actions={siblingActions}
           graphNodes={graph.nodes.map(n => ({
+            id: n.id,
             x: n.x || 0,
             y: n.y || 0,
             radius: 20,
           }))}
           svgRef={svgRef}
           onActionClick={handleSiblingActionClick}
+        />
+      )}
+
+      {/* Phase 2.2: Dependency Panel */}
+      {dependencyPanelOpen && selectedNode && graph && (
+        <DependencyPanel
+          node={selectedNode}
+          graph={graph}
+          onClose={handleCloseDependencyPanel}
+          onZoomToFit={() => {}}
+        />
+      )}
+
+      {/* Phase 2.2: Node Details Panel */}
+      {detailsPanelNode && (
+        <NodeDetailsPanel
+          projectId={projectId}
+          node={detailsPanelNode}
+          onClose={handleCloseDetailsPanel}
+          onUpdate={(id, updates) => patchNode(projectId, id, updates)}
+        />
+      )}
+
+      {/* Phase 2.2: Timeline Overlay */}
+      {timelineOverlayOpen && graph && (
+        <TimelineOverlay
+          selectedNode={selectedNode}
+          allNodes={graph.nodes}
+          onNodeSelect={(node) => {
+            setSelectedNode(node);
+            onNodeSelect?.(node);
+          }}
+          onClose={handleCloseTimelineOverlay}
         />
       )}
 

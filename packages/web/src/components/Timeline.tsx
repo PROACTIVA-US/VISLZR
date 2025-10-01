@@ -9,7 +9,7 @@ interface TimelineProps {
 
 export function Timeline({ projectId, onMilestoneSelect }: TimelineProps) {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
-  const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+  const [_selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -117,7 +117,7 @@ export function Timeline({ projectId, onMilestoneSelect }: TimelineProps) {
           {sortedMilestones.length === 0 ? (
             <div className="text-gray-500 text-sm w-full text-center">No milestones yet</div>
           ) : (
-            sortedMilestones.map((milestone, index) => (
+            sortedMilestones.map((milestone) => (
               <div
                 key={milestone.id}
                 className="relative flex flex-col items-center cursor-pointer group"

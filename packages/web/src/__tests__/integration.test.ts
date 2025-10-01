@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { actionRegistry } from '../lib/ActionRegistry';
 import { ContextDetector } from '../lib/ContextDetector';
-import type { NodeData, EdgeData } from '@vislzr/shared';
+import type { NodeData, GraphData, EdgeType } from '@vislzr/shared';
 import { defaultActions } from '../lib/defaultActions';
-import type { SiblingAction } from '@vislzr/shared/types/actions';
+import type { SiblingAction } from '@vislzr/shared';
 
 describe('Integration: Registry + Context + Renderer', () => {
   beforeAll(() => {
@@ -83,7 +83,7 @@ describe('Integration: Registry + Context + Renderer', () => {
       label: 'main.ts',
       type: 'FILE',
       status: 'IDLE',
-      priority: 0,
+      priority: 2,
       progress: 0,
       tags: ['typescript'],
       parent_id: null,
@@ -139,14 +139,14 @@ describe('Integration: Registry + Context + Renderer', () => {
       metadata: { created_at: '', updated_at: '' },
     };
 
-    const graph = {
+    const graph: GraphData = {
       project: { id: 'test', name: 'Test', created_at: '', updated_at: '' },
       nodes: [parentNode, childNode],
       edges: [
         {
           source: 'parent-1',
           target: 'child-1',
-          type: 'parent',
+          type: 'parent' as EdgeType,
         },
       ],
     };
@@ -191,14 +191,14 @@ describe('Integration: Registry + Context + Renderer', () => {
       metadata: { created_at: '', updated_at: '' },
     };
 
-    const graph = {
+    const graph: GraphData = {
       project: { id: 'test', name: 'Test', created_at: '', updated_at: '' },
       nodes: [node1, node2],
       edges: [
         {
           source: 'node-1',
           target: 'node-2',
-          type: 'dependency',
+          type: 'dependency' as EdgeType,
         },
       ],
     };
@@ -311,7 +311,7 @@ describe('Integration: Registry + Context + Renderer', () => {
       label: 'main.ts',
       type: 'FILE',
       status: 'IDLE',
-      priority: 0,
+      priority: 2,
       progress: 0,
       tags: [],
       parent_id: null,

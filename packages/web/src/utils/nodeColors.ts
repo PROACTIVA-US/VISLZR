@@ -1,4 +1,4 @@
-import type { NodeStatus } from '@/types/graph';
+import type { NodeStatus } from '@vislzr/shared';
 
 // Node color mappings per PRD Section 4.1
 export function getNodeColor(status: NodeStatus): string {

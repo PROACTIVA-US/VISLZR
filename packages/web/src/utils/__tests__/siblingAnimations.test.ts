@@ -1,8 +1,7 @@
 /**
  * Unit tests for sibling animation utilities.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as d3 from 'd3';
+import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_ANIMATION_CONFIG,
   calculateStaggerDelays,
@@ -10,7 +9,17 @@ import {
   calculateStackPosition,
   calculateSiblingPositions,
 } from '../siblingAnimations';
-import type { SiblingNodeData } from '@/types/action';
+import type { SiblingAction } from '@vislzr/shared';
+
+// Local test type for sibling node data with position
+interface SiblingNodeData {
+  id: string;
+  parentNodeId: string;
+  action: SiblingAction;
+  x: number;
+  y: number;
+  angle?: number;
+}
 
 describe('siblingAnimations', () => {
   describe('DEFAULT_ANIMATION_CONFIG', () => {
@@ -65,7 +74,7 @@ describe('siblingAnimations', () => {
       // Single sibling should be at the top center
       expect(pos.x).toBeCloseTo(100, 1);
       expect(pos.y).toBeCloseTo(100 - 150, 1); // parentY - (parentRadius + arcRadius)
-      expect(pos.angle).toBeCloseTo(0, 2);
+      expect(pos.angle).toBeCloseTo(-Math.PI / 2, 2); // -π/2 radians points upward
     });
 
     it('should calculate arc positions for multiple siblings', () => {
@@ -164,12 +173,10 @@ describe('siblingAnimations', () => {
           id: 'action-1',
           label: 'Action 1',
           icon: '✓',
-          type: 'create',
-          category: 'foundational',
-          handler: 'handler1',
-          requires_context: false,
-          ai_powered: false,
+          category: 'create',
+          visibilityRules: [],
           priority: 1,
+          handler: async () => ({ success: true }),
         },
         x: 0,
         y: 0,
@@ -181,12 +188,10 @@ describe('siblingAnimations', () => {
           id: 'action-2',
           label: 'Action 2',
           icon: '👁',
-          type: 'view',
-          category: 'foundational',
-          handler: 'handler2',
-          requires_context: false,
-          ai_powered: false,
+          category: 'view',
+          visibilityRules: [],
           priority: 2,
+          handler: async () => ({ success: true }),
         },
         x: 0,
         y: 0,
@@ -198,12 +203,10 @@ describe('siblingAnimations', () => {
           id: 'action-3',
           label: 'Action 3',
           icon: '🔗',
-          type: 'state',
-          category: 'foundational',
-          handler: 'handler3',
-          requires_context: false,
-          ai_powered: false,
+          category: 'state-change',
+          visibilityRules: [],
           priority: 3,
+          handler: async () => ({ success: true }),
         },
         x: 0,
         y: 0,
@@ -312,12 +315,10 @@ describe('siblingAnimations', () => {
           id: `action-${i}`,
           label: `Action ${i}`,
           icon: '✓',
-          type: 'create' as const,
-          category: 'foundational' as const,
-          handler: `handler${i}`,
-          requires_context: false,
-          ai_powered: false,
+          category: 'create' as const,
+          visibilityRules: [],
           priority: 1,
+          handler: async () => ({ success: true }),
         },
         x: 0,
         y: 0,

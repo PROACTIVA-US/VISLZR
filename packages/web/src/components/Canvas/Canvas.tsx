@@ -1,13 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import type { NodeData, EdgeData } from '@/types/graph';
-import type { SiblingAction } from '@/types/action';
+import type { SimulationNodeDatum } from 'd3-force';
+import type { NodeData, EdgeData, SiblingAction } from '@vislzr/shared';
 import { getNodeColor, getNodeBorderColor, shouldNodePulse } from '@/utils/nodeColors';
 import { SiblingNodes } from './SiblingNodes';
 import { DependencyFocusMode } from './DependencyFocusMode';
 import { useSiblingLifecycle } from '@/hooks/useSiblingLifecycle';
 import { useDependencyFocus } from '@/hooks/useDependencyFocus';
 import { actionsApi } from '@/api/actions';
+
+// Extend NodeData with D3 simulation properties
+type SimulationNode = NodeData & SimulationNodeDatum;
 
 interface CanvasProps {
   nodes: NodeData[];
@@ -27,7 +30,7 @@ export const Canvas: React.FC<CanvasProps> = ({
   selectedNodeId,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const simulationRef = useRef<d3.Simulation<NodeData, EdgeData> | null>(null);
+  const simulationRef = useRef<d3.Simulation<SimulationNode, EdgeData> | null>(null);
   const siblingsGroupRef = useRef<SVGGElement | null>(null);
 
   // Get selected node data
@@ -36,11 +39,11 @@ export const Canvas: React.FC<CanvasProps> = ({
   // Use sibling lifecycle hook
   const {
     actions: siblingActions,
-    isVisible: siblingsVisible,
+    isVisible: _siblingsVisible,
     refreshActions,
   } = useSiblingLifecycle({
     projectId,
-    selectedNodeId,
+    selectedNodeId: selectedNodeId ?? null,
     autoHideDelay: 10000, // 10 seconds
   });
 
@@ -51,7 +54,7 @@ export const Canvas: React.FC<CanvasProps> = ({
     enterFocusMode,
     exitFocusMode,
   } = useDependencyFocus({
-    selectedNodeId,
+    selectedNodeId: selectedNodeId ?? null,
     nodes,
     edges,
   });
@@ -114,16 +117,16 @@ export const Canvas: React.FC<CanvasProps> = ({
     svg.call(zoom);
 
     // Create a copy of nodes and edges for D3
-    const nodesCopy = nodes.map((d) => ({ ...d }));
+    const nodesCopy = nodes.map((d) => ({ ...d })) as SimulationNode[];
     const edgesCopy = edges.map((d) => ({ ...d }));
 
     // Force simulation
     const simulation = d3
-      .forceSimulation(nodesCopy)
+      .forceSimulation<SimulationNode, EdgeData>(nodesCopy)
       .force(
         'link',
         d3
-          .forceLink<NodeData, EdgeData>(edgesCopy)
+          .forceLink<SimulationNode, EdgeData>(edgesCopy)
           .id((d) => d.id)
           .distance(150)
       )
@@ -131,7 +134,7 @@ export const Canvas: React.FC<CanvasProps> = ({
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force(
         'collision',
-        d3.forceCollide<NodeData>().radius((d) => 30 + d.priority * 8)
+        d3.forceCollide<SimulationNode>().radius((d) => 30 + (d.priority || 1) * 8)
       );
 
     simulationRef.current = simulation;
@@ -142,16 +145,16 @@ export const Canvas: React.FC<CanvasProps> = ({
       .data(edgesCopy)
       .join('line')
       .attr('stroke', (d) => {
-        if (d.type === 'dependency' && d.status === 'blocked') return '#EF4444';
-        if (d.type === 'dependency' && d.status === 'met') return '#3B82F6';
+        if (d.kind === 'depends' && d.status === 'blocked') return '#EF4444';
+        if (d.kind === 'depends' && d.status === 'met') return '#3B82F6';
         return '#6B7280';
       })
       .attr('stroke-width', (d) => {
-        if (d.type === 'dependency' && d.status === 'blocked') return 3;
+        if (d.kind === 'depends' && d.status === 'blocked') return 3;
         return 2;
       })
       .attr('stroke-opacity', 0.6)
-      .attr('stroke-dasharray', (d) => (d.type === 'reference' ? '5,5' : ''));
+      .attr('stroke-dasharray', (d) => (d.kind === 'relates' ? '5,5' : ''));
 
     // Drag behavior
     const drag = d3
@@ -189,11 +192,11 @@ export const Canvas: React.FC<CanvasProps> = ({
     // Node circles
     nodeElements
       .append('circle')
-      .attr('r', (d) => 25 + d.priority * 5)
-      .attr('fill', (d) => getNodeColor(d.status))
-      .attr('stroke', (d) => getNodeBorderColor(d.status))
+      .attr('r', (d) => 25 + (d.priority || 1) * 5)
+      .attr('fill', (d) => getNodeColor(d.status || 'IDLE'))
+      .attr('stroke', (d) => getNodeBorderColor(d.status || 'IDLE'))
       .attr('stroke-width', (d) => (d.id === selectedNodeId ? 4 : 3))
-      .attr('class', (d) => (shouldNodePulse(d.status) ? 'animate-pulse-error' : ''))
+      .attr('class', (d) => (shouldNodePulse(d.status || 'IDLE') ? 'animate-pulse-error' : ''))
       .style('cursor', 'pointer');
 
     // Node labels
@@ -211,8 +214,8 @@ export const Canvas: React.FC<CanvasProps> = ({
     nodeElements
       .append('circle')
       .attr('r', 6)
-      .attr('cx', (d) => 20 + d.priority * 5)
-      .attr('cy', (d) => -(20 + d.priority * 5))
+      .attr('cx', (d) => 20 + (d.priority || 1) * 5)
+      .attr('cy', (d) => -(20 + (d.priority || 1) * 5))
       .attr('fill', (d) => {
         if (d.status === 'COMPLETED') return '#10B981';
         if (d.status === 'ERROR' || d.status === 'BLOCKED') return '#EF4444';
@@ -245,7 +248,7 @@ export const Canvas: React.FC<CanvasProps> = ({
       style={{ cursor: 'grab' }}
     >
       {/* Render sibling nodes using React Portal-like approach */}
-      {selectedNode && siblingsGroupRef.current && (
+      {selectedNode && siblingsGroupRef.current && svgRef.current && (
         <foreignObject x="0" y="0" width="100%" height="100%" pointerEvents="none">
           <div style={{ pointerEvents: 'none' }}>
             <svg
@@ -254,11 +257,16 @@ export const Canvas: React.FC<CanvasProps> = ({
               style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'auto' }}
             >
               <SiblingNodes
-                parentNode={selectedNode}
+                selectedNode={selectedNode}
                 actions={siblingActions}
+                graphNodes={nodes.map((n) => ({
+                  id: n.id,
+                  x: n.x || 0,
+                  y: n.y || 0,
+                  radius: 30 + (n.priority || 2) * 8,
+                }))}
+                svgRef={svgRef}
                 onActionClick={handleSiblingActionClick}
-                layout="arc"
-                visible={siblingsVisible}
               />
             </svg>
           </div>

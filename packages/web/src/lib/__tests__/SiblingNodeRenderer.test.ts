@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import * as d3 from 'd3';
 import { SiblingNodeRenderer } from '../SiblingNodeRenderer';
-import type { SiblingAction } from '@vislzr/shared/types/actions';
+import type { SiblingAction } from '@vislzr/shared';
 
 describe('SiblingNodeRenderer', () => {
   let renderer: SiblingNodeRenderer;
@@ -27,21 +27,21 @@ describe('SiblingNodeRenderer', () => {
     const actions: SiblingAction[] = [
       {
         id: 'view_details',
-        type: 'view_details',
         label: 'View Details',
         icon: '👁️',
         category: 'view',
-        handler: 'handleViewDetails',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
       {
         id: 'add_task',
-        type: 'add_task',
         label: 'Add Task',
         icon: '➕',
         category: 'create',
-        handler: 'handleAddTask',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
     ];
 
@@ -69,12 +69,12 @@ describe('SiblingNodeRenderer', () => {
     const actions: SiblingAction[] = [
       {
         id: 'view_details',
-        type: 'view_details',
         label: 'View Details',
         icon: '👁️',
         category: 'view',
-        handler: 'handleViewDetails',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
     ];
 
@@ -102,8 +102,9 @@ describe('SiblingNodeRenderer', () => {
         label: 'Action 1',
         icon: '🔵',
         category: 'view',
-        handler: 'handler1',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
       {
         id: 'action2',
@@ -111,8 +112,9 @@ describe('SiblingNodeRenderer', () => {
         label: 'Action 2',
         icon: '🟢',
         category: 'create',
-        handler: 'handler2',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
     ];
 
@@ -143,12 +145,12 @@ describe('SiblingNodeRenderer', () => {
     const actions: SiblingAction[] = [
       {
         id: 'test_action',
-        type: 'test_action',
         label: 'Test Action',
         icon: '✨',
         category: 'view',
-        handler: 'handleTest',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
     ];
 
@@ -169,8 +171,8 @@ describe('SiblingNodeRenderer', () => {
     // Simulate click event
     const clickEvent = new MouseEvent('click', { bubbles: true });
     const groupNode = siblingGroup.node();
-    if (groupNode) {
-      groupNode.dispatchEvent(clickEvent);
+    if (groupNode && 'dispatchEvent' in groupNode) {
+      (groupNode as Element).dispatchEvent(clickEvent);
     }
 
     // onActionClick should have been called
@@ -186,8 +188,9 @@ describe('SiblingNodeRenderer', () => {
         label: 'View',
         icon: '👁️',
         category: 'view',
-        handler: 'handleView',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
       {
         id: 'create_action',
@@ -195,8 +198,9 @@ describe('SiblingNodeRenderer', () => {
         label: 'Create',
         icon: '➕',
         category: 'create',
-        handler: 'handleCreate',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
       {
         id: 'destructive_action',
@@ -204,8 +208,9 @@ describe('SiblingNodeRenderer', () => {
         label: 'Delete',
         icon: '🗑️',
         category: 'destructive',
-        handler: 'handleDelete',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
     ];
 
@@ -234,8 +239,9 @@ describe('SiblingNodeRenderer', () => {
         label: 'Action 1',
         icon: '🔵',
         category: 'view',
-        handler: 'handler1',
-        conditions: {},
+        handler: async () => ({ success: true }),
+        visibilityRules: [],
+        priority: 1,
       },
     ];
 

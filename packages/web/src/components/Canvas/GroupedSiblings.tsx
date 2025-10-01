@@ -4,11 +4,9 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import type { NodeData } from '@/types/graph';
-import type { SiblingAction } from '@/types/action';
+import type { NodeData, SiblingAction } from '@vislzr/shared';
 import { actionsApi } from '@/api/actions';
 import {
-  calculateSiblingPositions,
   animateGroupExpansion,
   animateGroupCollapse,
   highlightSibling,
@@ -35,7 +33,7 @@ export const GroupedSiblings: React.FC<GroupedSiblingsProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [subActions, setSubActions] = useState<SiblingAction[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, setIsLoading] = useState(false);
 
   const groupRef = useRef<SVGGElement>(null);
   const subSiblingsRef = useRef<SVGGElement[]>([]);
@@ -181,7 +179,7 @@ export const GroupedSiblings: React.FC<GroupedSiblingsProps> = ({
         .append('g')
         .attr('class', 'sub-sibling')
         .attr('cursor', 'pointer')
-        .attr('transform', (d, i) => `translate(${subPositions[i].x}, ${subPositions[i].y})`);
+        .attr('transform', (_d, i) => `translate(${subPositions[i].x}, ${subPositions[i].y})`);
 
       // Background
       enterSiblings
@@ -192,8 +190,8 @@ export const GroupedSiblings: React.FC<GroupedSiblingsProps> = ({
         .attr('height', 24)
         .attr('rx', 12)
         .attr('ry', 12)
-        .attr('fill', (d) => (d.ai_powered ? '#8b5cf6' : '#3b82f6'))
-        .attr('stroke', (d) => (d.ai_powered ? '#a78bfa' : '#60a5fa'))
+        .attr('fill', (d) => (d.category === 'ai-analysis' || d.category === 'ai-generative' ? '#8b5cf6' : '#3b82f6'))
+        .attr('stroke', (d) => (d.category === 'ai-analysis' || d.category === 'ai-generative' ? '#a78bfa' : '#60a5fa'))
         .attr('stroke-width', 2);
 
       // Icon

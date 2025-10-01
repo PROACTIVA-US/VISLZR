@@ -6,7 +6,7 @@ import type {
   GraphContext,
   ActionResult,
   ActionHandler,
-} from '@vislzr/shared/types/actions';
+} from '@vislzr/shared';
 
 /**
  * Handler for viewing node dependencies
@@ -201,7 +201,7 @@ export const handleAddNote: ActionHandler = async (
  */
 export const handleViewDetails: ActionHandler = async (
   node: NodeData,
-  context: GraphContext
+  _context: GraphContext
 ): Promise<ActionResult> => {
   try {
     // TODO: In future, this will open a side panel or modal

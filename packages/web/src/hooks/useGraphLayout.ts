@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
-import type { GraphData } from "@/types/graph";
+import type { GraphData } from "@vislzr/shared";
 export interface LayoutNode extends d3.SimulationNodeDatum { id: string; x: number; y: number; fx?: number | null; fy?: number | null; }
 export interface LayoutLink extends d3.SimulationLinkDatum<LayoutNode> { source: string | LayoutNode; target: string | LayoutNode; weight?: number; }
 export function useGraphLayout(data: GraphData | null, opts?: { width?: number; height?: number; charge?: number; linkDistance?: number; }) {

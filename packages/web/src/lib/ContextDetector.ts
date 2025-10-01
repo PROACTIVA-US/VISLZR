@@ -4,10 +4,8 @@
 import type {
   NodeData,
   GraphData,
-  NodeType,
-  NodeStatus,
   NodeContext,
-} from '@vislzr/shared/types/actions';
+} from '@vislzr/shared';
 
 /**
  * ContextDetector analyzes nodes and their relationships
@@ -21,13 +19,12 @@ export class ContextDetector {
   static buildContext(node: NodeData, graph: GraphData): NodeContext {
     return {
       nodeType: node.type || 'TASK',
-      nodeStatus: node.status || 'IDLE',
+      status: node.status || 'IDLE',
       hasChildren: this.hasChildren(node.id, graph),
       hasParent: this.hasParent(node.id, graph),
       hasDependencies: this.hasDependencies(node.id, graph),
       isBlocked: this.isBlocked(node, graph),
       isOverdue: this.isOverdue(node),
-      hasCode: Boolean(node.metadata?.code),
       metadata: node.metadata || {},
     };
   }
