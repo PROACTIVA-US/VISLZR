@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { GraphData } from "@/types/graph";
+import type { GraphData } from "@vislzr/shared";
 export function useTimeline(graph: GraphData | null) {
   return useMemo(() => {
     const ms = (graph?.milestones ?? []).slice().sort((a, b) => a.date.localeCompare(b.date));

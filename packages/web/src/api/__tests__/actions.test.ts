@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { actionsApi } from '../actions';
 import { apiClient } from '../client';
-import type { SiblingAction, ActionExecutionResult, ActionHistoryEntry } from '@/types/action';
+import type { SiblingActionDTO, ActionExecutionResult, ActionHistoryEntry } from '@/types/action';
 
 // Mock the API client
 vi.mock('../client', () => ({
@@ -27,7 +27,7 @@ describe('actionsApi', () => {
 
   describe('getActions', () => {
     it('should fetch actions for a node', async () => {
-      const mockActions: SiblingAction[] = [
+      const mockActions: SiblingActionDTO[] = [
         {
           id: 'add-task',
           label: 'Add Task',
@@ -83,7 +83,7 @@ describe('actionsApi', () => {
   describe('expandGroup', () => {
     it('should expand a grouped action', async () => {
       const mockGroupId = 'create-group';
-      const mockSubActions: SiblingAction[] = [
+      const mockSubActions: SiblingActionDTO[] = [
         {
           id: 'add-task',
           label: 'Add Task',

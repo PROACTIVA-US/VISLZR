@@ -45,9 +45,6 @@ describe('useWebSocket', () => {
 
     // Simulate receiving a message
     const mockMessage = { type: 'node_updated', data: { id: 'node-1' } };
-    const event = new MessageEvent('message', {
-      data: JSON.stringify(mockMessage),
-    });
 
     // This is a simplified test - in real scenario, you'd trigger the WebSocket's onmessage
     // For now, we're just verifying the hook structure

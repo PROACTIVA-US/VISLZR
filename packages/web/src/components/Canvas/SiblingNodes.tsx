@@ -5,7 +5,7 @@
  */
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import type { SiblingAction } from '@vislzr/shared/types/actions';
+import type { SiblingAction } from '@vislzr/shared';
 import type { NodeData } from '@vislzr/shared';
 import { SiblingNodeRenderer } from '../../lib/SiblingNodeRenderer';
 

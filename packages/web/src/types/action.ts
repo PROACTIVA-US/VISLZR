@@ -1,20 +1,23 @@
 /**
  * TypeScript types for sibling node actions.
- * Matches backend Pydantic schemas.
+ * API response types that match backend Pydantic schemas.
+ *
+ * Note: This file defines API DTOs. For the runtime SiblingAction type with
+ * handler functions, import from '@vislzr/shared'
  */
 
-export type ActionType = 'view' | 'create' | 'state' | 'ai' | 'group';
-
-export type ActionCategory = 'foundational' | 'ai' | 'grouped';
-
-export interface SiblingAction {
+/**
+ * Sibling action as returned by the API (Data Transfer Object)
+ * The handler is a string identifier, not a function
+ */
+export interface SiblingActionDTO {
   id: string;
   label: string;
   icon: string;
-  type: ActionType;
-  category: ActionCategory;
+  type: 'view' | 'create' | 'state' | 'ai' | 'group';
+  category: 'foundational' | 'ai' | 'grouped';
   group?: string;
-  handler: string;
+  handler: string; // String identifier, not function
   requires_context: boolean;
   ai_powered: boolean;
   priority: number;
@@ -51,6 +54,9 @@ export interface ActionHistoryEntry {
   result?: Record<string, any>;
   error_message?: string;
 }
+
+// Import SiblingAction from shared package
+import type { SiblingAction } from '@vislzr/shared';
 
 // Extended types for D3 visualization
 

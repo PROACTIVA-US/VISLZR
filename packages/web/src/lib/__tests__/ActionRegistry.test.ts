@@ -3,7 +3,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ActionRegistry } from '../ActionRegistry';
-import type { SiblingAction, NodeData, NodeContext, GraphContext } from '@vislzr/shared/types/actions';
+import type { SiblingAction, NodeData, NodeContext, GraphContext } from '@vislzr/shared';
 
 describe('ActionRegistry', () => {
   let registry: ActionRegistry;
@@ -122,7 +122,7 @@ describe('ActionRegistry', () => {
         label: 'Task Action',
         icon: '✓',
         category: 'view',
-        visibilityRules: [{ field: 'nodeType', operator: 'equals', value: 'TASK' }],
+        visibilityRules: [{ field: 'type', operator: 'equals', value: 'TASK' }],
         priority: 1,
         handler: async () => ({ success: true }),
       };
@@ -132,7 +132,7 @@ describe('ActionRegistry', () => {
         label: 'Service Action',
         icon: '✓',
         category: 'view',
-        visibilityRules: [{ field: 'nodeType', operator: 'equals', value: 'SERVICE' }],
+        visibilityRules: [{ field: 'type', operator: 'equals', value: 'SERVICE' }],
         priority: 1,
         handler: async () => ({ success: true }),
       };
@@ -180,7 +180,7 @@ describe('ActionRegistry', () => {
         label: 'Dep Action',
         icon: '✓',
         category: 'view',
-        visibilityRules: [{ field: 'hasDependencies', operator: 'equals', value: true }],
+        visibilityRules: [{ field: 'dependencies', operator: 'exists' }],
         priority: 1,
         handler: async () => ({ success: true }),
       };
@@ -267,7 +267,7 @@ describe('ActionRegistry', () => {
         icon: '✓',
         category: 'view',
         visibilityRules: [
-          { field: 'nodeType', operator: 'equals', value: 'TASK' },
+          { field: 'type', operator: 'equals', value: 'TASK' },
           { field: 'status', operator: 'equals', value: 'IDLE' },
         ],
         priority: 1,
@@ -282,7 +282,7 @@ describe('ActionRegistry', () => {
 
       // Should fail (status doesn't match)
       const differentContext: NodeContext = { ...mockContext, status: 'COMPLETED' };
-      actions = registry.getActionsForContext(mockNode, { ...mockNode, status: 'COMPLETED' } as any, differentContext);
+      actions = registry.getActionsForContext(mockNode, differentContext);
       expect(actions).toHaveLength(0);
     });
   });

@@ -1,4 +1,4 @@
-import type { Position, LayoutType } from '@vislzr/shared/types/actions';
+import type { Position, LayoutType } from '@vislzr/shared';
 import { VISUAL, ARC_LAYOUT, RING_LAYOUT, LAYOUT_THRESHOLDS } from '../lib/constants';
 
 /**

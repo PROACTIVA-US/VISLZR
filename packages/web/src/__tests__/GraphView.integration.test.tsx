@@ -19,6 +19,11 @@ vi.mock('../services/apiClient', () => ({
   putGraph: vi.fn(),
 }));
 
+// Mock initializeActions
+vi.mock('../lib/initializeActions', () => ({
+  initializeActions: vi.fn(),
+}));
+
 const mockGraphData: GraphData = {
   project: {
     id: 'test-project',

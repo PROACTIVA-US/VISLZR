@@ -3,7 +3,7 @@
  * Handles fetching, animation, and auto-hide logic.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { SiblingAction } from '@/types/action';
+import type { SiblingAction } from '@vislzr/shared';
 import { actionsApi } from '@/api/actions';
 
 interface UseSiblingLifecycleProps {

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { GraphData } from "@/types/graph";
+import type { GraphData } from "@vislzr/shared";
 export function useMiniMap(graph: GraphData | null, layout: { width: number; height: number; }, scale = 0.15) {
   return useMemo(() => {
     if (!graph) return { nodes: [], edges: [], scale, viewBox: `0 0 ${layout.width} ${layout.height}` };

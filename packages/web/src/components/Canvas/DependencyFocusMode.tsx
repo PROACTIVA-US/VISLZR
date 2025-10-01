@@ -4,7 +4,7 @@
  */
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import type { NodeData, EdgeData } from '@/types/graph';
+import type { NodeData, EdgeData } from '@vislzr/shared';
 import type { DependencyGraph } from '@/utils/dependencyAnalysis';
 
 interface DependencyFocusModeProps {
@@ -102,7 +102,7 @@ export const DependencyFocusMode: React.FC<DependencyFocusModeProps> = ({
       .transition()
       .duration(300)
       .attr('stroke', (d) => {
-        if (d.type !== 'dependency') return null;
+        if (d.kind !== 'depends') return null;
 
         const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
         const targetId = typeof d.target === 'object' ? d.target.id : d.target;

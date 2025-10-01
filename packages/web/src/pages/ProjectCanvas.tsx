@@ -9,7 +9,11 @@ export const ProjectCanvas = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
-  const [graphData, setGraphData] = useState<GraphData>({ nodes: [], edges: [] });
+  const [graphData, setGraphData] = useState<GraphData>({
+    project: { id: '', name: '', created_at: '', updated_at: '' },
+    nodes: [],
+    edges: []
+  });
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,6 +146,7 @@ export const ProjectCanvas = () => {
           <Canvas
             nodes={graphData.nodes}
             edges={graphData.edges}
+            projectId={projectId || ''}
             onNodeClick={handleNodeClick}
             selectedNodeId={selectedNode?.id}
           />
@@ -185,7 +190,7 @@ export const ProjectCanvas = () => {
               <span className="text-gray-400 text-sm">Priority:</span>
               <p className="font-semibold">{selectedNode.priority}</p>
             </div>
-            {selectedNode.tags.length > 0 && (
+            {selectedNode.tags && selectedNode.tags.length > 0 && (
               <div>
                 <span className="text-gray-400 text-sm">Tags:</span>
                 <div className="flex flex-wrap gap-1 mt-1">

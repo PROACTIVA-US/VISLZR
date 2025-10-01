@@ -4,7 +4,7 @@
  * Uses D3.js for smooth 60fps transitions.
  */
 import * as d3 from 'd3';
-import type { SiblingNodeInstance } from '@vislzr/shared/types/actions';
+import type { SiblingNodeInstance } from '@vislzr/shared';
 import { ANIMATION_TIMING } from '../lib/constants';
 
 /**
@@ -35,12 +35,16 @@ export const DEFAULT_ANIMATION_CONFIG: SiblingAnimationConfig = {
  * @param config - Animation configuration
  */
 export const appearAnimation = (
-  element: SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>,
+  element: SVGElement | d3.Selection<SVGGElement, unknown, null, undefined> | string,
   config: Partial<SiblingAnimationConfig> = {}
 ): void => {
   const { duration = ANIMATION_TIMING.APPEAR_DURATION, delay = 0 } = config;
 
-  const selection = element instanceof SVGElement ? d3.select(element) : element;
+  const selection = typeof element === 'string'
+    ? d3.select(element)
+    : element instanceof SVGElement
+    ? d3.select(element)
+    : element;
 
   // Get final position from transform attribute
   const finalTransform = selection.attr('transform');
@@ -108,7 +112,7 @@ export const fadeAnimation = (
 export const calculateStaggerDelays = (
   count: number,
   baseDelay: number = 0,
-  stagger: number = DEFAULT_ANIMATION_CONFIG.stagger
+  stagger: number = DEFAULT_ANIMATION_CONFIG.stagger ?? 50
 ): number[] => {
   return Array.from({ length: count }, (_, i) => baseDelay + i * stagger);
 };
@@ -166,7 +170,7 @@ export const animateGroupExpansion = (
   subElements: (SVGElement | d3.Selection<SVGGElement, unknown, null, undefined>)[],
   config: Partial<SiblingAnimationConfig> = {}
 ): void => {
-  const { duration } = { ...DEFAULT_ANIMATION_CONFIG, ...config };
+  const { duration = 300 } = { ...DEFAULT_ANIMATION_CONFIG, ...config };
 
   // Rotate group element slightly
   const groupSelection =
@@ -193,7 +197,7 @@ export const animateGroupCollapse = async (
 ): Promise<void> => {
   await animateSiblingsOutStaggered(subElements, {
     ...config,
-    duration: (config.duration || DEFAULT_ANIMATION_CONFIG.duration) / 2,
+    duration: (config.duration || DEFAULT_ANIMATION_CONFIG.duration || 300) / 2,
   });
 };
 

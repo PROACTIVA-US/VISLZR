@@ -23,7 +23,7 @@ export class MockWebSocket {
     }, 0);
   }
 
-  send(data: string) {
+  send(_data: string) {
     // Mock send
   }
 
@@ -66,6 +66,12 @@ export const createMockEdge = (overrides?: Partial<EdgeData>): EdgeData => ({
 });
 
 export const createMockGraph = (): GraphData => ({
+  project: {
+    id: 'project-1',
+    name: 'Test Project',
+    created_at: '2025-01-01T00:00:00Z',
+    updated_at: '2025-01-01T00:00:00Z',
+  },
   nodes: [
     createMockNode({ id: 'node-1', label: 'Root', type: 'ROOT' }),
     createMockNode({ id: 'node-2', label: 'Task 1', status: 'IN_PROGRESS' }),

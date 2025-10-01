@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { ContextDetector } from '../ContextDetector';
-import type { NodeData, EdgeData, GraphData } from '@vislzr/shared/types/actions';
+import type { NodeData, EdgeData, GraphData } from '@vislzr/shared';
 
 describe('ContextDetector', () => {
   describe('buildContext', () => {

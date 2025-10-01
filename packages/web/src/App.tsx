@@ -6,22 +6,8 @@ import { DocsViewer } from "./components/DocsViewer";
 import { Timeline } from "./components/Timeline";
 import { AIPrompt } from "./components/AIPrompt";
 import { putGraph } from "./services/apiClient";
+import type { GraphData, NodeData } from "@vislzr/shared";
 import "./App.css";
-
-type NodeData = {
-  id: string;
-  label: string;
-  status?: string;
-  priority?: number;
-  progress?: number;
-  tags?: string[];
-};
-
-type GraphData = {
-  project: { id: string; name: string };
-  nodes: NodeData[];
-  edges: any[];
-};
 
 export default function App() {
   const projectId = "vislzr-demo";

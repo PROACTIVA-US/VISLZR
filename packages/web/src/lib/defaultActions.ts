@@ -2,7 +2,7 @@
 // Phase 1.2 - Action Registry & Context Detection
 // Based on spec Appendix A examples
 
-import type { SiblingAction } from '@vislzr/shared/types/actions';
+import type { SiblingAction } from '@vislzr/shared';
 import {
   handleViewDependencies,
   handleAddTask,
@@ -48,7 +48,7 @@ export const defaultActions: SiblingAction[] = [
     label: 'Dependencies',
     icon: '🔗',
     category: 'view',
-    visibilityRules: [{ field: 'hasDependencies', operator: 'equals', value: true }],
+    visibilityRules: [{ field: 'dependencies', operator: 'exists' }],
     priority: 11,
     handler: handleViewDependencies,
     tooltip: 'View dependency relationships',
@@ -94,7 +94,7 @@ export const defaultActions: SiblingAction[] = [
     category: 'state-change',
     visibilityRules: [
       { field: 'status', operator: 'not-equals', value: 'COMPLETED' },
-      { field: 'nodeType', operator: 'equals', value: 'TASK' },
+      { field: 'type', operator: 'equals', value: 'TASK' },
     ],
     priority: 1,
     handler: handleMarkComplete,
@@ -107,7 +107,7 @@ export const defaultActions: SiblingAction[] = [
     category: 'state-change',
     visibilityRules: [
       { field: 'status', operator: 'equals', value: 'IDLE' },
-      { field: 'nodeType', operator: 'equals', value: 'TASK' },
+      { field: 'type', operator: 'equals', value: 'TASK' },
     ],
     priority: 1,
     handler: handleStartTask,
@@ -120,7 +120,7 @@ export const defaultActions: SiblingAction[] = [
     category: 'state-change',
     visibilityRules: [
       { field: 'status', operator: 'not-equals', value: 'COMPLETED' },
-      { field: 'nodeType', operator: 'equals', value: 'TASK' },
+      { field: 'type', operator: 'equals', value: 'TASK' },
     ],
     priority: 2,
     handler: handleUpdateProgress,
@@ -134,7 +134,7 @@ export const defaultActions: SiblingAction[] = [
     icon: '🔒',
     category: 'ai-analysis',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'SERVICE' },
+      { field: 'type', operator: 'equals', value: 'SERVICE' },
     ],
     priority: 20,
     handler: async (node) => ({
@@ -151,7 +151,7 @@ export const defaultActions: SiblingAction[] = [
     icon: '🔍',
     category: 'ai-analysis',
     visibilityRules: [
-      { field: 'hasDependencies', operator: 'equals', value: true },
+      { field: 'dependencies', operator: 'exists' },
     ],
     priority: 21,
     handler: async (node) => ({
@@ -187,7 +187,7 @@ export const defaultActions: SiblingAction[] = [
     icon: '📋',
     category: 'view',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'SERVICE' },
+      { field: 'type', operator: 'equals', value: 'SERVICE' },
     ],
     priority: 12,
     handler: async (node) => ({
@@ -203,7 +203,7 @@ export const defaultActions: SiblingAction[] = [
     icon: '🔄',
     category: 'state-change',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'SERVICE' },
+      { field: 'type', operator: 'equals', value: 'SERVICE' },
     ],
     priority: 10,
     requiresConfirmation: true,
@@ -223,7 +223,7 @@ export const defaultActions: SiblingAction[] = [
     icon: '💻',
     category: 'view',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'FILE' },
+      { field: 'type', operator: 'equals', value: 'FILE' },
     ],
     priority: 5,
     handler: async (node) => ({
@@ -239,7 +239,7 @@ export const defaultActions: SiblingAction[] = [
     icon: '🧪',
     category: 'integration',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'FILE' },
+      { field: 'type', operator: 'equals', value: 'FILE' },
       { field: 'label', operator: 'matches', value: /\.(test|spec)\.(ts|tsx|js|jsx)$/ },
     ],
     priority: 15,
@@ -281,7 +281,7 @@ export const groupedActions: SiblingAction[] = [
     isGroupParent: true,
     group: 'scans',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'SERVICE' },
+      { field: 'type', operator: 'equals', value: 'SERVICE' },
     ],
     priority: 20,
     handler: async () => ({ success: true }),
@@ -296,7 +296,7 @@ export const groupedActions: SiblingAction[] = [
     category: 'ai-analysis',
     group: 'scans',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'SERVICE' },
+      { field: 'type', operator: 'equals', value: 'SERVICE' },
     ],
     priority: 21,
     handler: async (node) => ({
@@ -314,7 +314,7 @@ export const groupedActions: SiblingAction[] = [
     category: 'ai-analysis',
     group: 'scans',
     visibilityRules: [
-      { field: 'nodeType', operator: 'equals', value: 'SERVICE' },
+      { field: 'type', operator: 'equals', value: 'SERVICE' },
     ],
     priority: 22,
     handler: async (node) => ({
